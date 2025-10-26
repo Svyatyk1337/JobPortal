@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # PostgreSQL - Application Service
+  # ============================================
+  postgres:
+    image: postgres:15
+    container_name: job-portal-postgres
+    environment:
+      POSTGRES_DB: application_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./project1-application/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d application_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - job-portal-network
+
+  # ============================================
+  # MySQL - Catalog Service
+  # ============================================
+  mysql:
+    image: mysql:8
+    container_name: job-portal-mysql
+    environment:
+      MYSQL_DATABASE: catalog_db
+      MYSQL_ROOT_PASSWORD: admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./project2-catalog/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - job-portal-network
+
+  # ============================================
+  # MongoDB - Review Service
+  # ============================================
+  mongodb:
+    image: mongo:7
+    container_name: job-portal-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./project3-review/init.js:/docker-entrypoint-initdb.d/init.js
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - job-portal-network
+
+  # ============================================
+  # .NET Application API - Project 1
+  # ============================================
+  application-api:
+    build:
+      context: ./project1-application
+      dockerfile: Dockerfile
+    container_name: job-portal-application-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__ApplicationDb=Host=postgres;Port=5432;Database=application_db;Username=admin;Password=admin123
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - job-portal-network
+    restart: unless-stopped
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  job-portal-network:
+    driver: bridge
+
+# ============================================
+# Volumes (persistent data storage)
+# ============================================
+volumes:
+  postgres_data:
+    driver: local
+  mysql_data:
+    driver: local
+  mongodb_data:
+    driver: local
