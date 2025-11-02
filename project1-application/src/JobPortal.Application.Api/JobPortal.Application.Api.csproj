@@ -17,6 +17,7 @@
     <ProjectReference Include="..\JobPortal.Application.Bll\JobPortal.Application.Bll.csproj" />
     <ProjectReference Include="..\JobPortal.Application.Dal\JobPortal.Application.Dal.csproj" />
     <ProjectReference Include="..\JobPortal.Application.Domain\JobPortal.Application.Domain.csproj" />
+    <ProjectReference Include="..\..\..\aspire-orchestration\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj" Condition="Exists('..\..\..\aspire-orchestration\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj')" />
   </ItemGroup>
 
 </Project>

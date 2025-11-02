@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database for Application Service
+  postgres:
+    image: postgres:16
+    container_name: jobportal-postgres
+    environment:
+      POSTGRES_DB: application_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../project1-application/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jobportal-network
+
+  # MySQL database for Catalog Service
+  mysql:
+    image: mysql:8.0
+    container_name: jobportal-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql123
+      MYSQL_DATABASE: catalog_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../project2-catalog/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmysql123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jobportal-network
+
+  # MongoDB database for Review Service
+  mongodb:
+    image: mongo:7
+    container_name: jobportal-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: review_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ../project3-review/init.js:/docker-entrypoint-initdb.d/init.js
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jobportal-network
+
+  # Application Service (Project 1) - ADO.NET + Dapper
+  application-service:
+    build:
+      context: ../project1-application
+      dockerfile: Dockerfile
+    container_name: jobportal-application-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__ApplicationDb=Host=postgres;Port=5432;Database=application_db;Username=postgres;Password=postgres123
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+    ports:
+      - "5001:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - jobportal-network
+    restart: unless-stopped
+
+  # API Gateway (YARP)
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.Gateway
+    container_name: jobportal-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+    ports:
+      - "5000:8080"
+    depends_on:
+      - application-service
+      - aggregator
+    networks:
+      - jobportal-network
+    restart: unless-stopped
+
+  # Aggregator Service
+  aggregator:
+    build:
+      context: .
+      dockerfile: Dockerfile.Aggregator
+    container_name: jobportal-aggregator
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+    ports:
+      - "5002:8080"
+    depends_on:
+      - application-service
+    networks:
+      - jobportal-network
+    restart: unless-stopped
+
+  # Jaeger for distributed tracing (optional but recommended for Aspire)
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: jobportal-jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "4318:4318"    # OTLP HTTP receiver
+    networks:
+      - jobportal-network
+
+volumes:
+  postgres_data:
+  mysql_data:
+  mongodb_data:
+
+networks:
+  jobportal-network:
+    driver: bridge

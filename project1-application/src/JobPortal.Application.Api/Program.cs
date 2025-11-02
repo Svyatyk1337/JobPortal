@@ -9,12 +9,20 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // ============================================
-// Configure Serilog
+// Add Aspire ServiceDefaults (if available)
 // ============================================
-builder.Host.UseSerilog((context, configuration) =>
+try
 {
-    configuration.ReadFrom.Configuration(context.Configuration);
-});
+    builder.AddServiceDefaults();
+}
+catch
+{
+    // ServiceDefaults not available, continue with standard configuration
+    builder.Host.UseSerilog((context, configuration) =>
+    {
+        configuration.ReadFrom.Configuration(context.Configuration);
+    });
+}
 
 // ============================================
 // Add services to the container
@@ -88,8 +96,28 @@ var app = builder.Build();
 // Configure the HTTP request pipeline
 // ============================================
 
+// Map Aspire health check endpoints (if available)
+try
+{
+    app.MapDefaultEndpoints();
+}
+catch
+{
+    // Aspire endpoints not available, use custom health check
+}
+
 // Use Serilog request logging
 app.UseSerilogRequestLogging();
+
+// Use CorrelationId middleware (if available)
+try
+{
+    app.UseCorrelationId();
+}
+catch
+{
+    // CorrelationId middleware not available
+}
 
 // Global exception handling middleware (ProblemDetails)
 app.UseMiddleware<ExceptionHandlingMiddleware>();

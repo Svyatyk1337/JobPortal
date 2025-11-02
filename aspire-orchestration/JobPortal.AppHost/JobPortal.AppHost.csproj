@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsAspireHost>true</IsAspireHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.0" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="8.0.0" />
+    <PackageReference Include="Aspire.Hosting.MySql" Version="8.0.0" />
+    <PackageReference Include="Aspire.Hosting.MongoDB" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\JobPortal.ApiGateway\JobPortal.ApiGateway.csproj" />
+    <ProjectReference Include="..\JobPortal.Aggregator\JobPortal.Aggregator.csproj" />
+  </ItemGroup>
+
+</Project>

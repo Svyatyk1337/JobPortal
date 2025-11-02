@@ -1,0 +1,30 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy ServiceDefaults project
+COPY JobPortal.ServiceDefaults/JobPortal.ServiceDefaults.csproj JobPortal.ServiceDefaults/
+# Copy Aggregator project
+COPY JobPortal.Aggregator/JobPortal.Aggregator.csproj JobPortal.Aggregator/
+
+# Restore dependencies
+RUN dotnet restore JobPortal.Aggregator/JobPortal.Aggregator.csproj
+
+# Copy source files
+COPY JobPortal.ServiceDefaults/ JobPortal.ServiceDefaults/
+COPY JobPortal.Aggregator/ JobPortal.Aggregator/
+
+# Build the project
+WORKDIR /src/JobPortal.Aggregator
+RUN dotnet build JobPortal.Aggregator.csproj -c Release -o /app/build
+
+# Publish stage
+FROM build AS publish
+RUN dotnet publish JobPortal.Aggregator.csproj -c Release -o /app/publish /p:UseAppHost=false
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+EXPOSE 8080
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "JobPortal.Aggregator.dll"]
