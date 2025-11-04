@@ -80,20 +80,41 @@ services:
       - jobportal-network
     restart: unless-stopped
 
-  # API Gateway (YARP)
-  gateway:
+  # Catalog Service (Project 2) - EF Core + MySQL
+  catalog-service:
     build:
-      context: .
-      dockerfile: Dockerfile.Gateway
-    container_name: jobportal-gateway
+      context: ../project2-catalog
+      dockerfile: Dockerfile
+    container_name: jobportal-catalog-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__CatalogDb=Server=mysql;Port=3306;Database=catalog_db;User=root;Password=mysql123;
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
     ports:
-      - "5000:8080"
+      - "5003:8080"
     depends_on:
-      - application-service
-      - aggregator
+      mysql:
+        condition: service_healthy
+    networks:
+      - jobportal-network
+    restart: unless-stopped
+
+  # Review Service (Project 3) - CQRS + MongoDB
+  review-service:
+    build:
+      context: ../project3-review
+      dockerfile: Dockerfile
+    container_name: jobportal-review-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDbSettings__ConnectionString=mongodb://mongodb:27017
+      - MongoDbSettings__DatabaseName=review_db
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+    ports:
+      - "5004:8080"
+    depends_on:
+      mongodb:
+        condition: service_healthy
     networks:
       - jobportal-network
     restart: unless-stopped
@@ -111,6 +132,28 @@ services:
       - "5002:8080"
     depends_on:
       - application-service
+      - catalog-service
+      - review-service
+    networks:
+      - jobportal-network
+    restart: unless-stopped
+
+  # API Gateway (YARP)
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.Gateway
+    container_name: jobportal-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+    ports:
+      - "5000:8080"
+    depends_on:
+      - application-service
+      - catalog-service
+      - review-service
+      - aggregator
     networks:
       - jobportal-network
     restart: unless-stopped

@@ -26,27 +26,35 @@ var applicationService = builder.AddProject<Projects.JobPortal_Application_Api>(
     .WithReference(applicationDb)
     .WaitFor(applicationDb);
 
-// Add Catalog Service (Project 2) - when implemented
-// var catalogService = builder.AddProject<Projects.JobPortal_Catalog_WebApi>("catalog-service")
-//     .WithReference(catalogDb)
-//     .WaitFor(catalogDb);
+// Add Catalog Service (Project 2)
+var catalogService = builder.AddProject<Projects.JobPortal_Catalog_WebApi>("catalog-service")
+    .WithReference(catalogDb)
+    .WaitFor(catalogDb);
 
-// Add Review Service (Project 3) - when implemented
-// var reviewService = builder.AddProject<Projects.JobPortal_Review_WebApi>("review-service")
-//     .WithReference(reviewDb)
-//     .WaitFor(reviewDb);
+// Add Review Service (Project 3)
+var reviewService = builder.AddProject<Projects.JobPortal_Review_WebApi>("review-service")
+    .WithReference(reviewDb)
+    .WaitFor(reviewDb);
 
 // Add Aggregator Service
 var aggregator = builder.AddProject<Projects.JobPortal_Aggregator>("aggregator")
     .WithReference(applicationService)
-    .WaitFor(applicationService);
+    .WithReference(catalogService)
+    .WithReference(reviewService)
+    .WaitFor(applicationService)
+    .WaitFor(catalogService)
+    .WaitFor(reviewService);
 
 // Add API Gateway (YARP)
 var gateway = builder.AddProject<Projects.JobPortal_ApiGateway>("gateway")
     .WithExternalHttpEndpoints()
     .WithReference(aggregator)
     .WithReference(applicationService)
+    .WithReference(catalogService)
+    .WithReference(reviewService)
     .WaitFor(aggregator)
-    .WaitFor(applicationService);
+    .WaitFor(applicationService)
+    .WaitFor(catalogService)
+    .WaitFor(reviewService);
 
 builder.Build().Run();
