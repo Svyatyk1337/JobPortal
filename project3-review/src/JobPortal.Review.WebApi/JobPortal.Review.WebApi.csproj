@@ -12,12 +12,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\JobPortal.Review.Application\JobPortal.Review.Application.csproj" />
     <ProjectReference Include="..\JobPortal.Review.Infrastructure\JobPortal.Review.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\aspire-orchestration\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj" Condition="Exists('..\..\..\aspire-orchestration\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj')" />
   </ItemGroup>
 
 </Project>
