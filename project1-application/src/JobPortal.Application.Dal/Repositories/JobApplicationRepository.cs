@@ -157,7 +157,7 @@ public class JobApplicationRepository : IJobApplicationRepository
             if (shouldCloseConnection && connection.State == ConnectionState.Open)
             {
                 connection.Close();
-                await connection.DisposeAsync();
+                await ((NpgsqlConnection)connection).DisposeAsync();
             }
         }
     }
@@ -195,7 +195,7 @@ public class JobApplicationRepository : IJobApplicationRepository
             if (shouldCloseConnection && connection.State == ConnectionState.Open)
             {
                 connection.Close();
-                await connection.DisposeAsync();
+                await ((NpgsqlConnection)connection).DisposeAsync();
             }
         }
     }

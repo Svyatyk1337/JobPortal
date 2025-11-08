@@ -142,7 +142,7 @@ public class UnitOfWork : IUnitOfWork
             if (_connection != null)
             {
                 _connection.Close();
-                await _connection.DisposeAsync();
+                await ((NpgsqlConnection)_connection).DisposeAsync();
                 _connection = null;
             }
         }
@@ -173,7 +173,7 @@ public class UnitOfWork : IUnitOfWork
             if (_connection != null)
             {
                 _connection.Close();
-                await _connection.DisposeAsync();
+                await ((NpgsqlConnection)_connection).DisposeAsync();
                 _connection = null;
             }
         }

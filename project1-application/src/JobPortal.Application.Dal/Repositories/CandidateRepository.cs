@@ -110,8 +110,8 @@ public class CandidateRepository : ICandidateRepository
                 await ((NpgsqlConnection)connection).OpenAsync(cancellationToken);
             }
 
-            await using var command = connection.CreateCommand();
-            command.Transaction = _transaction;
+            await using var command = (NpgsqlCommand)connection.CreateCommand();
+            command.Transaction = (NpgsqlTransaction?)_transaction;
             command.CommandText = @"
                 INSERT INTO candidates (first_name, last_name, email, phone, years_of_experience, created_at)
                 VALUES (@firstName, @lastName, @email, @phone, @yearsOfExperience, @createdAt)
@@ -132,7 +132,7 @@ public class CandidateRepository : ICandidateRepository
             if (shouldCloseConnection && connection.State == ConnectionState.Open)
             {
                 connection.Close();
-                await connection.DisposeAsync();
+                await ((NpgsqlConnection)connection).DisposeAsync();
             }
         }
     }
@@ -149,8 +149,8 @@ public class CandidateRepository : ICandidateRepository
                 await ((NpgsqlConnection)connection).OpenAsync(cancellationToken);
             }
 
-            await using var command = connection.CreateCommand();
-            command.Transaction = _transaction;
+            await using var command = (NpgsqlCommand)connection.CreateCommand();
+            command.Transaction = (NpgsqlTransaction?)_transaction;
             command.CommandText = @"
                 UPDATE candidates
                 SET first_name = @firstName,
@@ -175,7 +175,7 @@ public class CandidateRepository : ICandidateRepository
             if (shouldCloseConnection && connection.State == ConnectionState.Open)
             {
                 connection.Close();
-                await connection.DisposeAsync();
+                await ((NpgsqlConnection)connection).DisposeAsync();
             }
         }
     }
