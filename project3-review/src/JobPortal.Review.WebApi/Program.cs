@@ -4,18 +4,11 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Aspire ServiceDefaults (if available)
-try
+// Configure Serilog
+builder.Host.UseSerilog((context, configuration) =>
 {
-    builder.AddServiceDefaults();
-}
-catch
-{
-    builder.Host.UseSerilog((context, configuration) =>
-    {
-        configuration.ReadFrom.Configuration(context.Configuration);
-    });
-}
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
 
 // Add services
 builder.Services.AddControllers();
@@ -53,11 +46,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure pipeline
-try { app.MapDefaultEndpoints(); } catch { }
-
 app.UseSerilogRequestLogging();
-
-try { app.UseCorrelationId(); } catch { }
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>
