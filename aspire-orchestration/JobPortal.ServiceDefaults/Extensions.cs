@@ -72,10 +72,8 @@ public static class Extensions
 
         if (useOtlpExporter)
         {
-            builder.Services.Configure<OpenTelemetry.Exporter.OpenTelemetryProtocolExporterOptions>(opts =>
-            {
-                opts.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]!);
-            });
+            builder.Services.AddOpenTelemetry()
+                .UseOtlpExporter();
         }
 
         return builder;
