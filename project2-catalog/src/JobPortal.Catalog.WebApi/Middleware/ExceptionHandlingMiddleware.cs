@@ -57,7 +57,7 @@ public class ExceptionHandlingMiddleware
                 };
                 break;
 
-            case ValidationException validationException:
+            case FluentValidation.ValidationException validationException:
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
                 problemDetails = new
                 {
