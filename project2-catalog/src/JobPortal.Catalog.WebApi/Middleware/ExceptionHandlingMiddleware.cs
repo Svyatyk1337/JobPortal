@@ -34,7 +34,7 @@ public class ExceptionHandlingMiddleware
         var response = context.Response;
         response.ContentType = "application/json";
 
-        var problemDetails = new
+        object problemDetails = new
         {
             type = "https://tools.ietf.org/html/rfc7231",
             title = "An error occurred",
