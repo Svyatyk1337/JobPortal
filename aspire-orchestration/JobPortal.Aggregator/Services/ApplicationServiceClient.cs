@@ -19,7 +19,7 @@ public class ApplicationServiceClient : IApplicationServiceClient
         try
         {
             _logger.LogInformation("Fetching candidate with ID {CandidateId}", id);
-            return await _httpClient.GetFromJsonAsync<CandidateDto>($"/api/candidates/{id}", cancellationToken);
+            return await _httpClient.GetFromJsonAsync<CandidateDto>($"/api/Candidates/{id}", cancellationToken);
         }
         catch (HttpRequestException ex)
         {
@@ -33,7 +33,7 @@ public class ApplicationServiceClient : IApplicationServiceClient
         try
         {
             _logger.LogInformation("Fetching all candidates");
-            var result = await _httpClient.GetFromJsonAsync<List<CandidateDto>>("/api/candidates", cancellationToken);
+            var result = await _httpClient.GetFromJsonAsync<List<CandidateDto>>("/api/Candidates", cancellationToken);
             return result ?? new List<CandidateDto>();
         }
         catch (HttpRequestException ex)
@@ -48,7 +48,7 @@ public class ApplicationServiceClient : IApplicationServiceClient
         try
         {
             _logger.LogInformation("Fetching applications for candidate {CandidateId}", candidateId);
-            var result = await _httpClient.GetFromJsonAsync<List<JobApplicationDto>>($"/api/job-applications/candidate/{candidateId}", cancellationToken);
+            var result = await _httpClient.GetFromJsonAsync<List<JobApplicationDto>>($"/api/JobApplications/by-candidate/{candidateId}", cancellationToken);
             return result ?? new List<JobApplicationDto>();
         }
         catch (HttpRequestException ex)
@@ -63,7 +63,7 @@ public class ApplicationServiceClient : IApplicationServiceClient
         try
         {
             _logger.LogInformation("Fetching application with ID {ApplicationId}", id);
-            return await _httpClient.GetFromJsonAsync<JobApplicationDto>($"/api/job-applications/{id}", cancellationToken);
+            return await _httpClient.GetFromJsonAsync<JobApplicationDto>($"/api/JobApplications/{id}", cancellationToken);
         }
         catch (HttpRequestException ex)
         {
@@ -77,7 +77,7 @@ public class ApplicationServiceClient : IApplicationServiceClient
         try
         {
             _logger.LogInformation("Fetching all applications");
-            var result = await _httpClient.GetFromJsonAsync<List<JobApplicationDto>>("/api/job-applications", cancellationToken);
+            var result = await _httpClient.GetFromJsonAsync<List<JobApplicationDto>>("/api/JobApplications", cancellationToken);
             return result ?? new List<JobApplicationDto>();
         }
         catch (HttpRequestException ex)
@@ -92,7 +92,7 @@ public class ApplicationServiceClient : IApplicationServiceClient
         try
         {
             _logger.LogInformation("Fetching interviews for application {ApplicationId}", applicationId);
-            var result = await _httpClient.GetFromJsonAsync<List<InterviewDto>>($"/api/interviews/application/{applicationId}", cancellationToken);
+            var result = await _httpClient.GetFromJsonAsync<List<InterviewDto>>($"/api/Interviews/by-application/{applicationId}", cancellationToken);
             return result ?? new List<InterviewDto>();
         }
         catch (HttpRequestException ex)
@@ -107,7 +107,7 @@ public class ApplicationServiceClient : IApplicationServiceClient
         try
         {
             _logger.LogInformation("Fetching all interviews");
-            var result = await _httpClient.GetFromJsonAsync<List<InterviewDto>>("/api/interviews", cancellationToken);
+            var result = await _httpClient.GetFromJsonAsync<List<InterviewDto>>("/api/Interviews/upcoming", cancellationToken);
             return result ?? new List<InterviewDto>();
         }
         catch (HttpRequestException ex)

@@ -5,14 +5,14 @@ var postgres = builder.AddPostgres("postgres")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var applicationDb = postgres.AddDatabase("application_db");
+var applicationDb = postgres.AddDatabase("ApplicationDb");
 
 // Add MySQL for Catalog Service (Project 2)
 var mysql = builder.AddMySql("mysql")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent);
 
-var catalogDb = mysql.AddDatabase("catalog_db");
+var catalogDb = mysql.AddDatabase("CatalogDb");
 
 // Add MongoDB for Review Service (Project 3)
 var mongodb = builder.AddMongoDB("mongodb")
@@ -21,17 +21,24 @@ var mongodb = builder.AddMongoDB("mongodb")
 
 var reviewDb = mongodb.AddDatabase("review_db");
 
-// Add Application Service (Project 1)
+// Add Redis for distributed caching
+var redis = builder.AddRedis("cache")
+    .WithDataVolume()
+    .WithLifetime(ContainerLifetime.Persistent);
+
+// Add Application Service (Project 1 - PostgreSQL)
 var applicationService = builder.AddProject<Projects.JobPortal_Application_Api>("application-service")
     .WithReference(applicationDb)
     .WaitFor(applicationDb);
 
-// Add Catalog Service (Project 2)
+// Add Catalog Service (Project 2 - MySQL)
 var catalogService = builder.AddProject<Projects.JobPortal_Catalog_WebApi>("catalog-service")
     .WithReference(catalogDb)
-    .WaitFor(catalogDb);
+    .WithReference(redis)
+    .WaitFor(catalogDb)
+    .WaitFor(redis);
 
-// Add Review Service (Project 3)
+// Add Review Service (Project 3 - MongoDB)
 var reviewService = builder.AddProject<Projects.JobPortal_Review_WebApi>("review-service")
     .WithReference(reviewDb)
     .WaitFor(reviewDb);

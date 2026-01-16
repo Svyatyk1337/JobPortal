@@ -19,6 +19,11 @@
     <ProjectReference Include="..\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj" />
     <ProjectReference Include="..\JobPortal.ApiGateway\JobPortal.ApiGateway.csproj" />
     <ProjectReference Include="..\JobPortal.Aggregator\JobPortal.Aggregator.csproj" />
+
+    <!-- Existing Microservices -->
+    <ProjectReference Include="..\..\project1-application\src\JobPortal.Application.Api\JobPortal.Application.Api.csproj" />
+    <ProjectReference Include="..\..\project2-catalog\src\JobPortal.Catalog.WebApi\JobPortal.Catalog.WebApi.csproj" />
+    <ProjectReference Include="..\..\project3-review\src\JobPortal.Review.WebApi\JobPortal.Review.WebApi.csproj" />
   </ItemGroup>
 
 </Project>
