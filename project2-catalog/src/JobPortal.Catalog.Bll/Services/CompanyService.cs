@@ -52,6 +52,16 @@ public class CompanyService : ICompanyService
             throw new FluentValidation.ValidationException(validationResult.Errors);
         }
 
+        // Check for duplicate company name (409 Conflict)
+        var existingCompanies = await _unitOfWork.Companies.FindAsync(
+            c => c.Name == createDto.Name,
+            cancellationToken);
+
+        if (existingCompanies.Any())
+        {
+            throw new Domain.Exceptions.ConflictException(nameof(Company), nameof(Company.Name), createDto.Name);
+        }
+
         var company = _mapper.Map<Company>(createDto);
         await _unitOfWork.Companies.AddAsync(company, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

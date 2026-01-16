@@ -11,9 +11,9 @@ public class UnitOfWork : IUnitOfWork
 
     private ICompanyRepository? _companies;
     private IJobRepository? _jobs;
+    private ISkillTagRepository? _skillTags;
     private IRepository<CompanyContact>? _companyContacts;
     private IRepository<JobCategory>? _jobCategories;
-    private IRepository<SkillTag>? _skillTags;
     private IRepository<JobSkillRequirement>? _jobSkillRequirements;
 
     public UnitOfWork(ApplicationDbContext context)
@@ -57,11 +57,11 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public IRepository<SkillTag> SkillTags
+    public ISkillTagRepository SkillTags
     {
         get
         {
-            _skillTags ??= new Repository<SkillTag>(_context);
+            _skillTags ??= new SkillTagRepository(_context);
             return _skillTags;
         }
     }

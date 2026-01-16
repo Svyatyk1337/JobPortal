@@ -26,6 +26,24 @@ public class JobsController : ControllerBase
         return Ok(jobs);
     }
 
+    [HttpGet("paged")]
+    [ProducesResponseType(typeof(PagedResult<JobDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<JobDto>>> GetPaged(
+        [FromQuery] JobQueryParams queryParams,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Getting paged jobs: Page {Page}, PageSize {PageSize}", queryParams.Page, queryParams.PageSize);
+        var result = await _jobService.GetJobsPagedAsync(queryParams, cancellationToken);
+
+        // Add pagination metadata to response headers
+        Response.Headers.Append("X-Pagination-Page", result.Page.ToString());
+        Response.Headers.Append("X-Pagination-PageSize", result.PageSize.ToString());
+        Response.Headers.Append("X-Pagination-TotalCount", result.TotalCount.ToString());
+        Response.Headers.Append("X-Pagination-TotalPages", result.TotalPages.ToString());
+
+        return Ok(result);
+    }
+
     [HttpGet("active")]
     [ProducesResponseType(typeof(IEnumerable<JobDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<JobDto>>> GetActive(CancellationToken cancellationToken)

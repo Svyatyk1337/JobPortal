@@ -4,19 +4,47 @@ using JobPortal.Catalog.Bll.Services;
 using JobPortal.Catalog.Bll.Validators;
 using JobPortal.Catalog.Data;
 using JobPortal.Catalog.Data.UnitOfWork;
+using JobPortal.Catalog.WebApi.GrpcServices;
 using JobPortal.Catalog.WebApi.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
+#if !DEBUG
+using JobPortal.ServiceDefaults;
+#endif
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ============================================
-// Configure Serilog
+// Configure Kestrel with separate ports for HTTP/1.1 and HTTP/2
 // ============================================
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Port 8080 for REST API (HTTP/1.1)
+    options.ListenAnyIP(8080, listenOptions =>
+    {
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1;
+    });
+
+    // Port 8081 for gRPC (HTTP/2 without TLS)
+    options.ListenAnyIP(8081, listenOptions =>
+    {
+        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
+    });
+});
+
+// ============================================
+// Add Aspire Service Defaults (OpenTelemetry, Serilog, Service Discovery)
+// ============================================
+#if !DEBUG
+builder.AddServiceDefaults();
+#else
+// Configure Serilog for local development
 builder.Host.UseSerilog((context, configuration) =>
 {
     configuration.ReadFrom.Configuration(context.Configuration);
 });
+#endif
 
 // ============================================
 // Add services to the container
@@ -33,6 +61,21 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// Add Redis distributed cache (Aspire will auto-inject connection string as "cache")
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var redisConnection = builder.Configuration.GetConnectionString("cache");
+    if (!string.IsNullOrEmpty(redisConnection))
+    {
+        options.Configuration = redisConnection;
+    }
+    else
+    {
+        // Fallback for local development without Redis
+        options.Configuration = "localhost:6379";
+    }
+});
+
 // Register BLL services
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IJobService, JobService>();
@@ -45,6 +88,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateCompanyDtoValidator>(
 
 // Add controllers
 builder.Services.AddControllers();
+
+// Add gRPC
+builder.Services.AddGrpc();
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -104,6 +150,11 @@ using (var scope = app.Services.CreateScope())
 // Use Serilog request logging
 app.UseSerilogRequestLogging();
 
+// Use CorrelationId from ServiceDefaults (if running in Aspire)
+#if !DEBUG
+app.UseCorrelationId();
+#endif
+
 // Global exception handling middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -127,9 +178,16 @@ app.UseCors("AllowAll");
 // Map controllers
 app.MapControllers();
 
+// Map gRPC services
+app.MapGrpcService<CatalogGrpcService>();
+
 // ============================================
-// Health check endpoint
+// Map Aspire default endpoints (health checks)
 // ============================================
+#if !DEBUG
+app.MapDefaultEndpoints();
+#else
+// Health check endpoint for local development
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "Healthy",
@@ -138,6 +196,7 @@ app.MapGet("/health", () => Results.Ok(new
 }))
 .WithName("HealthCheck")
 .WithTags("Health");
+#endif
 
 // ============================================
 // Run the application

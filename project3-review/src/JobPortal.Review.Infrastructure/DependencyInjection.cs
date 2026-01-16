@@ -16,10 +16,12 @@ public static class DependencyInjection
         // Register MongoDB settings
         services.Configure<MongoDbSettings>(configuration.GetSection("MongoDbSettings"));
 
-        // Register custom BSON serializers
+        // Register custom BSON serializers and class maps
         if (!BsonClassMap.IsClassMapRegistered(typeof(Rating)))
         {
             BsonSerializer.RegisterSerializer(new RatingSerializer());
+            MoneyClassMap.Register();
+            LocationClassMap.Register();
         }
 
         // Register MongoDbContext
@@ -31,6 +33,10 @@ public static class DependencyInjection
             var context = sp.GetRequiredService<MongoDbContext>();
             return new MongoRepository<CompanyReview>(context.CompanyReviews);
         });
+
+        // Register MongoDB services
+        services.AddScoped<IMongoIndexCreationService, MongoIndexCreationService>();
+        services.AddScoped<IDataSeeder, DataSeeder>();
 
         return services;
     }

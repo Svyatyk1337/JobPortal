@@ -116,3 +116,6 @@ yarn-error.log*
 postgres_data/
 mysql_data/
 mongodb_data/
+
+# Study/documentation files (not for remote)
+STUDY_GUIDE.md

@@ -2,19 +2,32 @@ using JobPortal.Application.Api.Middleware;
 using JobPortal.Application.Bll.Interfaces;
 using JobPortal.Application.Bll.Mappings;
 using JobPortal.Application.Bll.Services;
+using JobPortal.Application.Dal;
 using JobPortal.Application.Dal.Interfaces;
 using JobPortal.Application.Dal.UnitOfWork;
 using Serilog;
 
+#if !DEBUG
+using JobPortal.ServiceDefaults;
+#endif
+
+// Configure Dapper snake_case mapping
+DapperConfig.ConfigureSnakeCaseMapping();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ============================================
-// Configure Serilog
+// Add Aspire Service Defaults (OpenTelemetry, Serilog, Service Discovery)
 // ============================================
+#if !DEBUG
+builder.AddServiceDefaults();
+#else
+// Configure Serilog for local development
 builder.Host.UseSerilog((context, configuration) =>
 {
     configuration.ReadFrom.Configuration(context.Configuration);
 });
+#endif
 
 // ============================================
 // Add services to the container
@@ -90,6 +103,11 @@ var app = builder.Build();
 // Use Serilog request logging
 app.UseSerilogRequestLogging();
 
+// Use CorrelationId from ServiceDefaults (if running in Aspire)
+#if !DEBUG
+app.UseCorrelationId();
+#endif
+
 // Global exception handling middleware (ProblemDetails)
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -118,8 +136,12 @@ app.UseCors("AllowAll");
 app.MapControllers();
 
 // ============================================
-// Health check endpoint
+// Map Aspire default endpoints (health checks)
 // ============================================
+#if !DEBUG
+app.MapDefaultEndpoints();
+#else
+// Health check endpoint for local development
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "Healthy",
@@ -128,6 +150,7 @@ app.MapGet("/health", () => Results.Ok(new
 }))
 .WithName("HealthCheck")
 .WithTags("Health");
+#endif
 
 // ============================================
 // Run the application

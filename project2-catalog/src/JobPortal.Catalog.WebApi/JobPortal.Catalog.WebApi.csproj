@@ -17,13 +17,19 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.60.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\catalog.proto" GrpcServices="Server" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\JobPortal.Catalog.Bll\JobPortal.Catalog.Bll.csproj" />
     <ProjectReference Include="..\JobPortal.Catalog.Data\JobPortal.Catalog.Data.csproj" />
     <ProjectReference Include="..\JobPortal.Catalog.Domain\JobPortal.Catalog.Domain.csproj" />
-    <ProjectReference Include="..\..\..\aspire-orchestration\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj" Condition="Exists('..\..\..\aspire-orchestration\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj')" />
+    <ProjectReference Include="..\..\..\aspire-orchestration\JobPortal.ServiceDefaults\JobPortal.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

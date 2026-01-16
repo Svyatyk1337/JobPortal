@@ -52,4 +52,44 @@ public class JobRepository : Repository<Job>, IJobRepository
             .Include(j => j.Company)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<(IEnumerable<Job> Items, int TotalCount)> GetJobsPagedAsync(
+        int page,
+        int pageSize,
+        System.Linq.Expressions.Expression<Func<Job, bool>>? filter = null,
+        string? sortBy = null,
+        bool sortDescending = false,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Job> query = _dbSet
+            .Include(j => j.Company)
+            .Include(j => j.Category);
+
+        // Apply filter
+        if (filter != null)
+        {
+            query = query.Where(filter);
+        }
+
+        // Get total count
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Apply sorting
+        query = sortBy?.ToLower() switch
+        {
+            "title" => sortDescending ? query.OrderByDescending(j => j.Title) : query.OrderBy(j => j.Title),
+            "salary" => sortDescending ? query.OrderByDescending(j => j.SalaryMax) : query.OrderBy(j => j.SalaryMax),
+            "postedat" => sortDescending ? query.OrderByDescending(j => j.PostedAt) : query.OrderBy(j => j.PostedAt),
+            "company" => sortDescending ? query.OrderByDescending(j => j.Company.Name) : query.OrderBy(j => j.Company.Name),
+            _ => query.OrderByDescending(j => j.PostedAt) // Default sort
+        };
+
+        // Apply pagination
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

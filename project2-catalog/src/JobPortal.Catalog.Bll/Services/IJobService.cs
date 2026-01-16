@@ -13,4 +13,7 @@ public interface IJobService
     Task<IEnumerable<JobDto>> GetActiveJobsAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<JobDto>> GetJobsByCompanyAsync(int companyId, CancellationToken cancellationToken = default);
     Task<IEnumerable<JobDto>> GetJobsByCategoryAsync(int categoryId, CancellationToken cancellationToken = default);
+
+    // Pagination with filtering and sorting
+    Task<PagedResult<JobDto>> GetJobsPagedAsync(JobQueryParams queryParams, CancellationToken cancellationToken = default);
 }

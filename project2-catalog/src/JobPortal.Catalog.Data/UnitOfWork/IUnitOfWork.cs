@@ -6,9 +6,9 @@ public interface IUnitOfWork : IDisposable
 {
     ICompanyRepository Companies { get; }
     IJobRepository Jobs { get; }
+    ISkillTagRepository SkillTags { get; }
     IRepository<Domain.Entities.CompanyContact> CompanyContacts { get; }
     IRepository<Domain.Entities.JobCategory> JobCategories { get; }
-    IRepository<Domain.Entities.SkillTag> SkillTags { get; }
     IRepository<Domain.Entities.JobSkillRequirement> JobSkillRequirements { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

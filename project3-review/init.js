@@ -18,116 +18,83 @@ db.salary_reports.drop();
 db.company_reviews.insertMany([
     {
         company_id: 1,
-        company_name: "TechCorp",
-        reviewer_name: "Anonymous",
+        user_id: 101,
         job_title: "Senior Developer",
         overall_rating: 4.5,
-        ratings: {
-            work_life_balance: 5,
-            compensation: 4,
-            career_growth: 4,
-            culture: 5
-        },
+        work_life_balance_rating: 5.0,
+        compensation_rating: 4.0,
+        management_rating: 4.5,
+        culture_rating: 5.0,
+        title: "Great place to work!",
+        review_text: "I've been working here for 2 years and it's been an amazing experience.",
         pros: "Great team, modern tech stack, excellent work-life balance",
         cons: "Sometimes tight deadlines on major releases",
-        is_verified: true,
-        created_at: new Date("2025-01-15"),
-        comments: [
-            {
-                user_name: "Ivan",
-                text: "I completely agree! The team is amazing.",
-                created_at: new Date("2025-01-16")
-            },
-            {
-                user_name: "Olena",
-                text: "What about remote work options?",
-                created_at: new Date("2025-01-17")
-            }
-        ]
+        is_current_employee: true,
+        created_at: new Date("2025-01-15")
     },
     {
         company_id: 2,
-        company_name: "InnoSoft",
-        reviewer_name: "Dmytro K.",
+        user_id: 102,
         job_title: "Frontend Developer",
         overall_rating: 4.0,
-        ratings: {
-            work_life_balance: 4,
-            compensation: 4,
-            career_growth: 5,
-            culture: 4
-        },
+        work_life_balance_rating: 4.0,
+        compensation_rating: 4.0,
+        management_rating: 4.0,
+        culture_rating: 4.0,
+        title: "Good company for learning",
+        review_text: "Lots of opportunities to grow your skills and learn new technologies.",
         pros: "Lots of learning opportunities, friendly atmosphere, modern office",
         cons: "Could offer better compensation packages",
-        is_verified: true,
-        created_at: new Date("2025-01-10"),
-        comments: [
-            {
-                user_name: "Kateryna",
-                text: "How is the onboarding process?",
-                created_at: new Date("2025-01-11")
-            }
-        ]
+        is_current_employee: true,
+        created_at: new Date("2025-01-10")
     },
     {
         company_id: 3,
-        company_name: "DataVision",
-        reviewer_name: "Anonymous",
+        user_id: 103,
         job_title: "Data Engineer",
         overall_rating: 4.8,
-        ratings: {
-            work_life_balance: 5,
-            compensation: 5,
-            career_growth: 4,
-            culture: 5
-        },
+        work_life_balance_rating: 5.0,
+        compensation_rating: 5.0,
+        management_rating: 4.5,
+        culture_rating: 5.0,
+        title: "Excellent company with great projects",
+        review_text: "Working on cutting-edge data engineering projects with modern tools.",
         pros: "Excellent compensation, cutting-edge projects, great leadership",
         cons: "Small team, limited social events",
-        is_verified: false,
-        created_at: new Date("2025-01-18"),
-        comments: []
+        is_current_employee: false,
+        created_at: new Date("2025-01-18")
     },
     {
         company_id: 1,
-        company_name: "TechCorp",
-        reviewer_name: "Maria S.",
+        user_id: 104,
         job_title: "DevOps Engineer",
         overall_rating: 4.3,
-        ratings: {
-            work_life_balance: 4,
-            compensation: 5,
-            career_growth: 4,
-            culture: 4
-        },
+        work_life_balance_rating: 4.0,
+        compensation_rating: 5.0,
+        management_rating: 4.0,
+        culture_rating: 4.5,
+        title: "Challenging DevOps role",
+        review_text: "Great infrastructure setup with plenty of challenges to solve.",
         pros: "Great infrastructure, good pay, interesting challenges",
         cons: "On-call rotation can be demanding",
-        is_verified: true,
-        created_at: new Date("2025-01-20"),
-        comments: [
-            {
-                user_name: "Alex",
-                text: "How often is the on-call rotation?",
-                created_at: new Date("2025-01-21")
-            }
-        ]
+        is_current_employee: true,
+        created_at: new Date("2025-01-20")
     },
     {
         company_id: 2,
-        company_name: "InnoSoft",
-        reviewer_name: "Anonymous",
+        user_id: 105,
         job_title: "Backend Developer",
         overall_rating: 3.8,
-        ratings: {
-            work_life_balance: 3,
-            compensation: 4,
-            career_growth: 4,
-            culture: 4
-        },
+        work_life_balance_rating: 3.0,
+        compensation_rating: 4.0,
+        management_rating: 4.0,
+        culture_rating: 4.0,
+        title: "Good tech stack but work-life balance needs improvement",
+        review_text: "The technology is modern but sometimes we need to work overtime.",
         pros: "Good tech stack, supportive colleagues",
         cons: "Sometimes overtime is required, could improve work-life balance",
-        is_verified: true,
-        created_at: new Date("2025-01-12"),
-        comments: []
+        is_current_employee: true,
+        created_at: new Date("2025-01-12")
     }
 ]);
 

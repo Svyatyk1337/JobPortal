@@ -14,85 +14,80 @@ DROP TABLE IF EXISTS companies;
 -- Table: companies
 -- ============================================
 CREATE TABLE companies (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    description TEXT,
-    industry VARCHAR(100),
-    size VARCHAR(50),
-    website VARCHAR(255),
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(200) NOT NULL,
+    Description TEXT,
+    Industry VARCHAR(100),
+    EmployeeCount INT NOT NULL DEFAULT 0,
+    Website VARCHAR(255),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
 -- Table: company_contacts (1:1 with companies)
 -- ============================================
 CREATE TABLE company_contacts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    company_id INT UNIQUE NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
-    city VARCHAR(100),
-    country VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    CompanyId INT UNIQUE NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    Phone VARCHAR(20),
+    Address VARCHAR(500),
+    City VARCHAR(100),
+    Country VARCHAR(100),
+    FOREIGN KEY (CompanyId) REFERENCES companies(Id) ON DELETE CASCADE
 );
 
 -- ============================================
 -- Table: job_categories
 -- ============================================
 CREATE TABLE job_categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    Description TEXT
 );
 
 -- ============================================
 -- Table: jobs
 -- ============================================
 CREATE TABLE jobs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    company_id INT NOT NULL,
-    category_id INT,
-    title VARCHAR(200) NOT NULL,
-    description TEXT,
-    salary_from DECIMAL(10, 2),
-    salary_to DECIMAL(10, 2),
-    location VARCHAR(200),
-    is_remote BOOLEAN DEFAULT FALSE,
-    experience_level VARCHAR(50),
-    is_active BOOLEAN DEFAULT TRUE,
-    posted_date DATE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES job_categories(id) ON DELETE SET NULL,
-    CHECK (salary_from > 0),
-    CHECK (salary_to >= salary_from)
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    CompanyId INT NOT NULL,
+    CategoryId INT,
+    Title VARCHAR(200) NOT NULL,
+    Description TEXT,
+    SalaryMin DECIMAL(10, 2),
+    SalaryMax DECIMAL(10, 2),
+    Location VARCHAR(200),
+    EmploymentType VARCHAR(50),
+    ExperienceYears INT NOT NULL DEFAULT 0,
+    IsActive BOOLEAN DEFAULT TRUE,
+    PostedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (CompanyId) REFERENCES companies(Id) ON DELETE CASCADE,
+    FOREIGN KEY (CategoryId) REFERENCES job_categories(Id) ON DELETE SET NULL,
+    CHECK (SalaryMin > 0),
+    CHECK (SalaryMax >= SalaryMin)
 );
 
 -- ============================================
 -- Table: skill_tags
 -- ============================================
 CREATE TABLE skill_tags (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    category VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    Category VARCHAR(100)
 );
 
 -- ============================================
 -- Table: job_skill_requirements (M:N relationship)
 -- ============================================
 CREATE TABLE job_skill_requirements (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    job_id INT NOT NULL,
-    skill_tag_id INT NOT NULL,
-    level ENUM('Required', 'Preferred') DEFAULT 'Required',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
-    FOREIGN KEY (skill_tag_id) REFERENCES skill_tags(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_job_skill (job_id, skill_tag_id)
+    JobId INT NOT NULL,
+    SkillTagId INT NOT NULL,
+    RequiredLevel VARCHAR(50) DEFAULT 'Required',
+    IsRequired BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (JobId) REFERENCES jobs(Id) ON DELETE CASCADE,
+    FOREIGN KEY (SkillTagId) REFERENCES skill_tags(Id) ON DELETE CASCADE,
+    PRIMARY KEY (JobId, SkillTagId)
 );
 
 -- ============================================
@@ -100,19 +95,19 @@ CREATE TABLE job_skill_requirements (
 -- ============================================
 
 -- Insert 3 companies
-INSERT INTO companies (name, description, industry, size, website, is_active) VALUES
-('TechCorp', 'Leading technology company specializing in cloud solutions and enterprise software', 'Information Technology', '500-1000', 'https://techcorp.example.com', TRUE),
-('InnoSoft', 'Innovative software development company focused on mobile and web applications', 'Software Development', '100-500', 'https://innosoft.example.com', TRUE),
-('DataVision', 'Data analytics and business intelligence solutions provider', 'Data Analytics', '50-100', 'https://datavision.example.com', TRUE);
+INSERT INTO companies (Name, Description, Industry, EmployeeCount, Website) VALUES
+('TechCorp', 'Leading technology company specializing in cloud solutions and enterprise software', 'Information Technology', 750, 'https://techcorp.example.com'),
+('InnoSoft', 'Innovative software development company focused on mobile and web applications', 'Software Development', 300, 'https://innosoft.example.com'),
+('DataVision', 'Data analytics and business intelligence solutions provider', 'Data Analytics', 75, 'https://datavision.example.com');
 
 -- Insert 3 company_contacts (1:1 relationship)
-INSERT INTO company_contacts (company_id, email, phone, city, country) VALUES
-(1, 'careers@techcorp.example.com', '+380443456789', 'Kyiv', 'Ukraine'),
-(2, 'hr@innosoft.example.com', '+380445678901', 'Lviv', 'Ukraine'),
-(3, 'jobs@datavision.example.com', '+380447890123', 'Kharkiv', 'Ukraine');
+INSERT INTO company_contacts (CompanyId, Email, Phone, Address, City, Country) VALUES
+(1, 'careers@techcorp.example.com', '+380443456789', '123 Tech Street', 'Kyiv', 'Ukraine'),
+(2, 'hr@innosoft.example.com', '+380445678901', '456 Innovation Ave', 'Lviv', 'Ukraine'),
+(3, 'jobs@datavision.example.com', '+380447890123', '789 Data Boulevard', 'Kharkiv', 'Ukraine');
 
 -- Insert 5 job_categories
-INSERT INTO job_categories (name, description) VALUES
+INSERT INTO job_categories (Name, Description) VALUES
 ('IT', 'Information Technology and Software Development positions'),
 ('Marketing', 'Marketing, PR, and Communications roles'),
 ('Sales', 'Sales and Business Development opportunities'),
@@ -120,20 +115,20 @@ INSERT INTO job_categories (name, description) VALUES
 ('HR', 'Human Resources and Talent Management roles');
 
 -- Insert 10 jobs
-INSERT INTO jobs (company_id, category_id, title, description, salary_from, salary_to, location, is_remote, experience_level, is_active, posted_date) VALUES
-(1, 1, 'Senior Full-Stack Developer', 'We are looking for an experienced Full-Stack Developer to join our team. You will work on cutting-edge cloud solutions.', 4000.00, 6000.00, 'Kyiv', TRUE, 'Senior', TRUE, '2025-01-10'),
-(1, 1, 'DevOps Engineer', 'Join our infrastructure team to build and maintain scalable cloud infrastructure.', 4500.00, 6500.00, 'Kyiv', TRUE, 'Middle', TRUE, '2025-01-12'),
-(2, 1, 'Frontend Developer', 'Looking for a talented Frontend Developer with strong React skills.', 3000.00, 4500.00, 'Lviv', FALSE, 'Middle', TRUE, '2025-01-08'),
-(2, 1, 'Backend Developer', 'Backend Developer position for building scalable microservices.', 3500.00, 5000.00, 'Lviv', TRUE, 'Middle', TRUE, '2025-01-15'),
-(2, 1, 'Junior Full-Stack Developer', 'Great opportunity for junior developers to grow and learn.', 2000.00, 3000.00, 'Lviv', FALSE, 'Junior', TRUE, '2025-01-05'),
-(3, 1, 'Data Engineer', 'Build data pipelines and analytics infrastructure.', 4000.00, 5500.00, 'Kharkiv', TRUE, 'Senior', TRUE, '2025-01-18'),
-(3, 1, 'Python Developer', 'Python developer for data processing and automation.', 3500.00, 4800.00, 'Kharkiv', TRUE, 'Middle', TRUE, '2025-01-20'),
-(1, 2, 'Marketing Manager', 'Lead our marketing efforts and brand strategy.', 3000.00, 4000.00, 'Kyiv', FALSE, 'Senior', TRUE, '2025-01-14'),
-(2, 4, 'UI/UX Designer', 'Create beautiful and intuitive user interfaces.', 2500.00, 4000.00, 'Lviv', TRUE, 'Middle', TRUE, '2025-01-16'),
-(3, 3, 'Sales Representative', 'Expand our client base and drive revenue growth.', 2000.00, 3500.00, 'Kharkiv', FALSE, 'Junior', TRUE, '2025-01-22');
+INSERT INTO jobs (CompanyId, CategoryId, Title, Description, SalaryMin, SalaryMax, Location, EmploymentType, ExperienceYears, IsActive) VALUES
+(1, 1, 'Senior Full-Stack Developer', 'We are looking for an experienced Full-Stack Developer to join our team. You will work on cutting-edge cloud solutions.', 4000.00, 6000.00, 'Kyiv', 'Full-time', 5, TRUE),
+(1, 1, 'DevOps Engineer', 'Join our infrastructure team to build and maintain scalable cloud infrastructure.', 4500.00, 6500.00, 'Kyiv', 'Full-time', 4, TRUE),
+(2, 1, 'Frontend Developer', 'Looking for a talented Frontend Developer with strong React skills.', 3000.00, 4500.00, 'Lviv', 'Full-time', 3, TRUE),
+(2, 1, 'Backend Developer', 'Backend Developer position for building scalable microservices.', 3500.00, 5000.00, 'Lviv', 'Full-time', 3, TRUE),
+(2, 1, 'Junior Full-Stack Developer', 'Great opportunity for junior developers to grow and learn.', 2000.00, 3000.00, 'Lviv', 'Full-time', 1, TRUE),
+(3, 1, 'Data Engineer', 'Build data pipelines and analytics infrastructure.', 4000.00, 5500.00, 'Kharkiv', 'Full-time', 5, TRUE),
+(3, 1, 'Python Developer', 'Python developer for data processing and automation.', 3500.00, 4800.00, 'Kharkiv', 'Remote', 3, TRUE),
+(1, 2, 'Marketing Manager', 'Lead our marketing efforts and brand strategy.', 3000.00, 4000.00, 'Kyiv', 'Full-time', 5, TRUE),
+(2, 4, 'UI/UX Designer', 'Create beautiful and intuitive user interfaces.', 2500.00, 4000.00, 'Lviv', 'Remote', 3, TRUE),
+(3, 3, 'Sales Representative', 'Expand our client base and drive revenue growth.', 2000.00, 3500.00, 'Kharkiv', 'Full-time', 1, TRUE);
 
 -- Insert 15 skill_tags
-INSERT INTO skill_tags (name, category) VALUES
+INSERT INTO skill_tags (Name, Category) VALUES
 ('C#', 'Programming Language'),
 ('.NET Core', 'Framework'),
 ('JavaScript', 'Programming Language'),
@@ -151,44 +146,42 @@ INSERT INTO skill_tags (name, category) VALUES
 ('Git', 'Version Control');
 
 -- Insert 20 job_skill_requirements (M:N relationship)
-INSERT INTO job_skill_requirements (job_id, skill_tag_id, level) VALUES
+INSERT INTO job_skill_requirements (JobId, SkillTagId, RequiredLevel, IsRequired) VALUES
 -- Senior Full-Stack Developer (job_id: 1)
-(1, 1, 'Required'),  -- C#
-(1, 2, 'Required'),  -- .NET Core
-(1, 5, 'Required'),  -- React
-(1, 8, 'Preferred'), -- PostgreSQL
+(1, 1, 'Expert', TRUE),  -- C#
+(1, 2, 'Expert', TRUE),  -- .NET Core
+(1, 5, 'Advanced', TRUE),  -- React
+(1, 8, 'Intermediate', FALSE), -- PostgreSQL
 -- DevOps Engineer (job_id: 2)
-(2, 11, 'Required'), -- Docker
-(2, 12, 'Required'), -- Kubernetes
-(2, 13, 'Required'), -- AWS
-(2, 15, 'Required'), -- Git
+(2, 11, 'Expert', TRUE), -- Docker
+(2, 12, 'Advanced', TRUE), -- Kubernetes
+(2, 13, 'Advanced', TRUE), -- AWS
+(2, 15, 'Intermediate', TRUE), -- Git
 -- Frontend Developer (job_id: 3)
-(3, 3, 'Required'),  -- JavaScript
-(3, 4, 'Required'),  -- TypeScript
-(3, 5, 'Required'),  -- React
+(3, 3, 'Expert', TRUE),  -- JavaScript
+(3, 4, 'Advanced', TRUE),  -- TypeScript
+(3, 5, 'Expert', TRUE),  -- React
 -- Backend Developer (job_id: 4)
-(4, 6, 'Required'),  -- Node.js
-(4, 4, 'Preferred'), -- TypeScript
-(4, 10, 'Required'), -- MongoDB
+(4, 6, 'Expert', TRUE),  -- Node.js
+(4, 4, 'Intermediate', FALSE), -- TypeScript
+(4, 10, 'Advanced', TRUE), -- MongoDB
 -- Junior Full-Stack Developer (job_id: 5)
-(5, 3, 'Required'),  -- JavaScript
-(5, 5, 'Preferred'), -- React
+(5, 3, 'Intermediate', TRUE),  -- JavaScript
+(5, 5, 'Beginner', FALSE), -- React
 -- Data Engineer (job_id: 6)
-(6, 7, 'Required'),  -- Python
-(6, 8, 'Required'),  -- PostgreSQL
-(6, 11, 'Preferred'), -- Docker
+(6, 7, 'Expert', TRUE),  -- Python
+(6, 8, 'Advanced', TRUE),  -- PostgreSQL
+(6, 11, 'Intermediate', FALSE), -- Docker
 -- Python Developer (job_id: 7)
-(7, 7, 'Required');  -- Python
+(7, 7, 'Expert', TRUE);  -- Python
 
 -- ============================================
 -- Create Indexes
 -- ============================================
-CREATE INDEX idx_jobs_company_id ON jobs(company_id);
-CREATE INDEX idx_jobs_category_id ON jobs(category_id);
-CREATE INDEX idx_jobs_is_active ON jobs(is_active);
-CREATE INDEX idx_jobs_posted_date ON jobs(posted_date);
-CREATE INDEX idx_job_skill_requirements_job_id ON job_skill_requirements(job_id);
-CREATE INDEX idx_job_skill_requirements_skill_tag_id ON job_skill_requirements(skill_tag_id);
+CREATE INDEX idx_jobs_company_id ON jobs(CompanyId);
+CREATE INDEX idx_jobs_category_id ON jobs(CategoryId);
+CREATE INDEX idx_jobs_is_active ON jobs(IsActive);
+CREATE INDEX idx_jobs_posted_at ON jobs(PostedAt);
 
 -- ============================================
 -- Verification Queries

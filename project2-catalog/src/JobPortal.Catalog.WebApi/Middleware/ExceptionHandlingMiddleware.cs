@@ -74,6 +74,18 @@ public class ExceptionHandlingMiddleware
                 };
                 break;
 
+            case JobPortal.Catalog.Domain.Exceptions.ConflictException conflictException:
+                response.StatusCode = (int)HttpStatusCode.Conflict;
+                problemDetails = new
+                {
+                    type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+                    title = "Conflict",
+                    status = (int)HttpStatusCode.Conflict,
+                    detail = conflictException.Message,
+                    instance = context.Request.Path
+                };
+                break;
+
             case DomainException domainException:
                 response.StatusCode = (int)HttpStatusCode.BadRequest;
                 problemDetails = new

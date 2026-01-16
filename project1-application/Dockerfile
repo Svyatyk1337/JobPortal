@@ -4,21 +4,28 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+# Copy ServiceDefaults project
+COPY aspire-orchestration/JobPortal.ServiceDefaults/JobPortal.ServiceDefaults.csproj ./aspire-orchestration/JobPortal.ServiceDefaults/
+
 # Copy solution and project files
-COPY JobPortal.Application.sln ./
-COPY src/JobPortal.Application.Domain/JobPortal.Application.Domain.csproj ./src/JobPortal.Application.Domain/
-COPY src/JobPortal.Application.Dal/JobPortal.Application.Dal.csproj ./src/JobPortal.Application.Dal/
-COPY src/JobPortal.Application.Bll/JobPortal.Application.Bll.csproj ./src/JobPortal.Application.Bll/
-COPY src/JobPortal.Application.Api/JobPortal.Application.Api.csproj ./src/JobPortal.Application.Api/
+COPY project1-application/JobPortal.Application.sln ./project1-application/
+COPY project1-application/src/JobPortal.Application.Domain/JobPortal.Application.Domain.csproj ./project1-application/src/JobPortal.Application.Domain/
+COPY project1-application/src/JobPortal.Application.Dal/JobPortal.Application.Dal.csproj ./project1-application/src/JobPortal.Application.Dal/
+COPY project1-application/src/JobPortal.Application.Bll/JobPortal.Application.Bll.csproj ./project1-application/src/JobPortal.Application.Bll/
+COPY project1-application/src/JobPortal.Application.Api/JobPortal.Application.Api.csproj ./project1-application/src/JobPortal.Application.Api/
 
 # Restore dependencies
+WORKDIR /src/project1-application
 RUN dotnet restore
 
 # Copy all source code
-COPY . .
+COPY project1-application/ ./
+# Copy ServiceDefaults source code
+WORKDIR /src
+COPY aspire-orchestration/JobPortal.ServiceDefaults/ ./aspire-orchestration/JobPortal.ServiceDefaults/
 
 # Build the application
-WORKDIR /src/src/JobPortal.Application.Api
+WORKDIR /src/project1-application/src/JobPortal.Application.Api
 RUN dotnet build -c Release -o /app/build
 
 # ============================================
