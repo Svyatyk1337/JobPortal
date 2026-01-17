@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 
+using SerializersNs = JobPortal.Review.Infrastructure.Persistence.Serializers;
+
 namespace JobPortal.Review.Infrastructure;
 
 public static class DependencyInjection
@@ -20,8 +22,8 @@ public static class DependencyInjection
         if (!BsonClassMap.IsClassMapRegistered(typeof(Rating)))
         {
             BsonSerializer.RegisterSerializer(new RatingSerializer());
-            MoneyClassMap.Register();
-            LocationClassMap.Register();
+            SerializersNs.MoneyClassMap.Register();
+            SerializersNs.LocationClassMap.Register();
         }
 
         // Register MongoDbContext
@@ -31,7 +33,13 @@ public static class DependencyInjection
         services.AddScoped<IRepository<CompanyReview>>(sp =>
         {
             var context = sp.GetRequiredService<MongoDbContext>();
-            return new MongoRepository<CompanyReview>(context.CompanyReviews);
+            return new ReviewRepository(context.CompanyReviews);
+        });
+
+        services.AddScoped<IReviewRepository>(sp =>
+        {
+            var context = sp.GetRequiredService<MongoDbContext>();
+            return new ReviewRepository(context.CompanyReviews);
         });
 
         // Register MongoDB services

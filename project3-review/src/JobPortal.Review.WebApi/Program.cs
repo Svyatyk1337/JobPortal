@@ -1,9 +1,9 @@
 using FluentValidation;
 using JobPortal.Review.Application.Common.Behaviors;
+using JobPortal.Review.Application.Common.Interfaces;
 using JobPortal.Review.Application.Common.Mappings;
 using JobPortal.Review.Infrastructure;
 using JobPortal.Review.Infrastructure.Persistence;
-using JobPortal.Review.WebApi.Middleware;
 using MediatR;
 using Serilog;
 
@@ -100,7 +100,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure pipeline
-app.UseMiddleware<GlobalExceptionMiddleware>();
+// GlobalExceptionMiddleware is replaced by ExceptionHandlingBehavior in MediatR pipeline
+// app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Use CorrelationId from ServiceDefaults (if running in Aspire)
 #if !DEBUG

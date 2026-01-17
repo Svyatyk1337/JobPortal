@@ -51,11 +51,7 @@ public class CompanyReviewsController : ControllerBase
             pageNumber,
             pageSize,
             companyId,
-            minRating,
-            maxRating,
-            isCurrentEmployee,
-            sortBy,
-            sortDescending);
+            sortBy);
 
         var result = await _mediator.Send(query, cancellationToken);
 
